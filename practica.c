@@ -1,7 +1,14 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include <time.h>
+// #include<conio.h>
+
+// distingir sistemes operatius
+// https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
+
 
 // ANSI color scape sequences
+// https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
@@ -9,6 +16,7 @@
 #define ANSI_COLOR_MAGENTA "\x1b[35m"
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+
 
 #define M 6
 #define N 8
@@ -22,14 +30,15 @@ typedef struct node {
     double valor;
 } Node;
 
-char** crea_tauler();
-void allibera_tauler(char** tauler);
+char** creaTauler();
+void alliberaTauler(char** tauler);
 void printTauler(char** tauler);
-void buida_tauler(char** tauler);
+void buidaTauler(char** tauler);
 char** copiarTauler(char** original);
 
 int jugadaGuanyadora(char** tauler, int col);
 
+/*  MATH */
 int min(int a, int b) {
     return (a<b)? a : b;
 }
@@ -37,6 +46,12 @@ int max(int a, int b) {
     return (a>b)? a : b;
 }
 
+// https://www.geeksforgeeks.org/c/clear-console-c-language/
+void clearConsole(){
+    printf("\e[1;1H\e[2J");
+}
+
+/* BASICS */
 void printTauler(char** tauler){
     for (int i = M-1; i>=0; i--) {
         printf("%d ", i+1);
@@ -55,13 +70,46 @@ void printTauler(char** tauler){
 }
 
 char** copiarTauler(char** original){
-    char** copia = crea_tauler();
+    char** copia = creaTauler();
     for (int i = 0; i<M; i++) {
         for (int j = 0; j<N; j++){
             copia[i][j] = original[i][j];
         }
     }
     return copia;
+}
+
+char** creaTauler() {
+    char** tauler = (char**) malloc(M*sizeof(char*));
+    if (tauler == NULL) {
+        printf("MEMORY ERROR!");
+        return NULL;
+    }
+    for (int i = 0; i<M; i++) {
+        tauler[i] = (char*) malloc(N*sizeof(char));
+
+        if (tauler[i] == NULL) {
+            printf("MEMORY ERROR!");
+            alliberaTauler(tauler);
+            return NULL;
+        }
+    }
+    return tauler;
+}
+
+void alliberaTauler(char** tauler){
+    for (int i = 0; i<M; i++) {
+        free(tauler[i]); // Alliberem cada fila
+    }
+    free(tauler); // Alliberem el tauler
+}
+
+void buidaTauler(char** tauler) {
+    for (int i = 0; i<M; i++) {
+        for (int j = 0; j<N; j++) {
+            tauler[i][j] = '-';
+        }
+    }
 }
 
 /* UNUSED
@@ -79,6 +127,8 @@ int getTopRow(char** tauler, int col){
     }
     return fila;
 }
+
+/* GAME */
 
 /* Fa una tirada al tauler del jugador seleccionat. Si la tirada és invàlida retorna 0 */
 int tiradaJugador(char** tauler, int col, char player) {
@@ -168,82 +218,79 @@ int jugadaGuanyadora(char** tauler, int col) {
 }
 
 #pragma region Nodes i tal
-// void tirada(char tauler[N][N], int numFill) {
-// 	//1.Transformar el numFill a columna de la matriu.
-//     int columna = 0;
-// 	//2.Calcula la fila on cau per gravetat
-// 	//3.Posar la fitxa a la fila/columna calculada
-// }
+void tirada(char** tauler, int numFill) {
+	//1.Transformar el numFill a columna de la matriu.
+    int col = numFill;
+    for (int i = 0; i<N; i++) {
+        if (tauler[M-1][i] != '-'){
+            col++;
+        }
+    }
+	//2.Calcula la fila on cau per gravetat
+    for (int i = 0; i < M; i++)
+    {
+        if (tauler[i][col] == '-'){
+            tauler[i][col] = 'x';
+        }
+    }
+	//3.Posar la fitxa a la fila/columna calculada
+}
 
-// int calcularNumFills(char tauler[N][M], int numFill) {
-    
-//     return 0;
-// }
+int calcularNumFills(char** tauler) {
+    return N;
+}
 
-// Node* creaNode(Node* pare, int numFill, int nivell){
-//     Node* p = malloc(sizeof(Node));
-//     copiarTauler(p->tauler, pare->tauler);
-//     tirada(p->tauler, numFill);
-//     if (nivell < 2) {
-//         p->n_fills = calcularNumFills(p->tauler); 
-//         p->fills = malloc(p->n_fills * sizeof(Node*));
-//     } else {
-//         p->n_fills = NULL;
-//     }
-//     return p;
-// }
+int comptador = 0;
+Node* creaNode(Node* pare, int numFill, int nivell){
+    Node* p = malloc(sizeof(Node));
+    p->valor = comptador++;
+    p->tauler = copiarTauler(pare->tauler);
+    tirada(p->tauler, numFill);
+    if (nivell < 2) {
+        p->n_fills = calcularNumFills(p->tauler); 
+        p->fills = malloc(p->n_fills * sizeof(Node*));
+    } else {
+        p->n_fills = 0;
+    }
+    return p;
+}
 
-// void creaFills(Node* pare, int nivell){
-//     for (int i = 0; i<pare->n_fills; i++) {
-//         pare->fills[i] = creaNode(pare, i, nivell);
-//     }
-// }
+void creaFills(Node* pare, int nivell){
+    for (int i = 0; i<pare->n_fills; i++) {
+        pare->fills[i] = creaNode(pare, i, nivell);
+    }
+}
 
-// void creaArbre(Node* arrel){
-//     creaFills(arrel);
-//     for (int i = 0; i<arrel->n_fills; i++) {
-//         creaFills(arrel->fills[i], 2);
-//     }
-// }
+void creaArbre(Node* arrel){
+    creaFills(arrel, 1);
+    for (int i = 0; i<arrel->n_fills; i++) {
+        creaFills(arrel->fills[i], 2);
+    }
+}
+
+void recorreArbreRecursiu(Node* p, int nivell) {
+    for (int k = 0; k<nivell;k++) {
+        printf("  ");
+    }
+    printf("%.0f\n", p->valor);
+    for (int i =0; i<p->n_fills; i++) {
+        recorreArbreRecursiu(p->fills[i], nivell+1);
+    }
+}
+
+void recorreArbre(Node* arrel) {
+    for (int i = 0; i<arrel->n_fills; i++) {
+        printf("%f", arrel->fills[i]->valor);
+    }
+}
 
 #pragma endregion
 
-char** crea_tauler() {
-    char** tauler = (char**) malloc(M*sizeof(char*));
-    if (tauler == NULL) {
-        printf("MEMORY ERROR!");
-        return NULL;
-    }
-    for (int i = 0; i<M; i++) {
-        tauler[i] = (char*) malloc(N*sizeof(char));
 
-        if (tauler[i] == NULL) {
-            printf("MEMORY ERROR!");
-            allibera_tauler(tauler);
-            return NULL;
-        }
-    }
-    return tauler;
-}
-
-void allibera_tauler(char** tauler){
-    for (int i = 0; i<M; i++) {
-        free(tauler[i]); // Alliberem cada fila
-    }
-    free(tauler); // Alliberem el tauler
-}
-
-void buida_tauler(char** tauler) {
-    for (int i = 0; i<M; i++) {
-        for (int j = 0; j<N; j++) {
-            tauler[i][j] = '-';
-        }
-    }
-}
 
 void jugarPersones() {
-    char** tauler = crea_tauler();
-    buida_tauler(tauler);
+    char** tauler = creaTauler();
+    buidaTauler(tauler);
     printTauler(tauler);
 
     char player = 'x';
@@ -268,24 +315,39 @@ void jugarPersones() {
     
     int a; // CANVIAR!!
     scanf("%d", &a);
+    // getch();
     
-    allibera_tauler(tauler);
+    alliberaTauler(tauler);
 }
 
 void jugarMaquina() {
-    char** tauler = crea_tauler();
-    buida_tauler(tauler);
+    char** tauler = creaTauler();
+    buidaTauler(tauler);
     printTauler(tauler);
 
+    
     char player = 'x';
+    int torn = 0; // 0 màquina; 1 humà
+
+    printf("Vols començar? (0:no, 1:si)");
+    scanf("%d", &torn);
+    torn = torn % 2;
+    
     for (int i = 0; i<N*M; i++) {
-        player = (i%2)? 'o' : 'x';
-        printf("torn del jugador %c. La seva jugada:\n", player);
         int play = 0;
-        scanf("%d", &play);
-        play--;
-        if (tiradaJugador(tauler, play, player) == 0) 
-            printf("Error tirant!\n");
+        if (torn == 1) {
+            printf("torn del jugador %c. La seva jugada:\n", player);
+            scanf("%d", &play);
+            play--;
+        } else {
+            play = rand() % N; // queda mirar que sigui vàlida
+        }
+
+        if (tiradaJugador(tauler, play, player) == 0) {
+            printf("Error tirant! Torna a provar siusplau.\n");
+            printTauler(tauler);
+            continue;
+        }
 
         if (jugadaGuanyadora(tauler, play) == 1) {
             printTauler(tauler);
@@ -293,6 +355,9 @@ void jugarMaquina() {
             break;
         }
         printTauler(tauler);
+
+        player = (player == 'x')? 'o' : 'x';
+        torn = (torn == 0)? 1 : 0;
     }
     
     printf("Entra qualsevol número per tornar al menú\n");
@@ -300,7 +365,7 @@ void jugarMaquina() {
     int a; // CANVIAR!!
     scanf("%d", &a);
     
-    allibera_tauler(tauler);
+    alliberaTauler(tauler);
 }
 
 void menu() {
@@ -337,14 +402,16 @@ void menu() {
 }
 
 int main(){
-    
+    srand(time(NULL));
+
     printf("Benvinguda!\n");
     menu();
 
     // Node arrel;
     // arrel.n_fills = N;
     // arrel.fills = malloc(N*sizeof(Node*));
-    // creaArbre(arrel);
+    // creaArbre(&arrel);
+    // recorreArbre(&arrel);
 
     return 0;
 }
