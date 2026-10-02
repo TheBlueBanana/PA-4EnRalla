@@ -1,7 +1,14 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include <time.h>
-#include<conio.h>
+#include<time.h> // to make random calls
+// #include<ncurses.h> // to getch
+
+#ifdef OSisWindows
+    #include<conio.h>
+    void 
+#else
+
+#endif
 
 // distingir sistemes operatius
 // https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
@@ -347,6 +354,7 @@ void jugarMaquina() {
             scanf("%d", &play);
             play--;
         } else {
+
             play = rand() % N; // queda mirar que sigui vàlida
         }
         
@@ -359,6 +367,9 @@ void jugarMaquina() {
         if (jugadaGuanyadora(tauler, play) == 1) {
             printTauler(tauler);
             printf("guanya %c!\n", player);
+            break;
+        } else if (i>=N*M) { // ACABAR
+            printf("Empat!\n");
             break;
         }
         printTauler(tauler);
