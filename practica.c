@@ -38,6 +38,7 @@ char** copiarTauler(char** original);
 
 int jugadaGuanyadora(char** tauler, int col);
 
+#pragma region Utilities
 /*  MATH */
 int min(int a, int b) {
     return (a<b)? a : b;
@@ -50,7 +51,9 @@ int max(int a, int b) {
 void clearConsole(){
     printf("\e[1;1H\e[2J");
 }
+#pragma endregion
 
+#pragma region Gestió de Tauler
 /* BASICS */
 void printTauler(char** tauler){
     for (int i = M-1; i>=0; i--) {
@@ -216,6 +219,7 @@ int jugadaGuanyadora(char** tauler, int col) {
 
     return 0;
 }
+#pragma endregion
 
 #pragma region Nodes i tal
 int comptador = 0; // treure!!!!!!!!!!!!!
@@ -290,13 +294,12 @@ void recorreArbre(Node* arrel) {
 
 #pragma endregion
 
-
-
+#pragma region Loops de Joc
 void jugarPersones() {
     char** tauler = creaTauler();
     buidaTauler(tauler);
     printTauler(tauler);
-
+    
     char player = 'x';
     for (int i = 0; i<N*M; i++) {
         player = (i%2)? 'o' : 'x';
@@ -305,8 +308,8 @@ void jugarPersones() {
         scanf("%d", &play);
         play--;
         if (tiradaJugador(tauler, play, player) == 0) 
-            printf("Error tirant!\n");
-
+        printf("Error tirant!\n");
+        
         if (jugadaGuanyadora(tauler, play) == 1) {
             printTauler(tauler);
             printf("guanya %c!\n", player);
@@ -328,11 +331,11 @@ void jugarMaquina() {
     char** tauler = creaTauler();
     buidaTauler(tauler);
     printTauler(tauler);
-
+    
     
     char player = 'x';
     int torn = 0; // 0 màquina; 1 humà
-
+    
     printf("Vols començar? (0:no, 1:si)");
     scanf("%d", &torn);
     torn = torn % 2;
@@ -346,20 +349,20 @@ void jugarMaquina() {
         } else {
             play = rand() % N; // queda mirar que sigui vàlida
         }
-
+        
         if (tiradaJugador(tauler, play, player) == 0) {
             printf("Error tirant! Torna a provar siusplau.\n");
             printTauler(tauler);
             continue;
         }
-
+        
         if (jugadaGuanyadora(tauler, play) == 1) {
             printTauler(tauler);
             printf("guanya %c!\n", player);
             break;
         }
         printTauler(tauler);
-
+        
         player = (player == 'x')? 'o' : 'x';
         torn = (torn == 0)? 1 : 0;
     }
@@ -381,33 +384,34 @@ void menu() {
         printf("2. Jugar contra la màquina\n");
         printf("3. Sortir\n");
         scanf("%d", &option);
-
+        
         switch (option)
         {
             case 1:
-                jugarPersones();
-                break;
+            jugarPersones();
+            break;
             case 2:
-                jugarMaquina();
-                break;
-
+            jugarMaquina();
+            break;
+            
             case 0:
             case -1:
             case 3:
             case 4:
             case 5:
             default:
-                option = 0;
-                break;
+            option = 0;
+            break;
         }
-
+        
     } while (option != 0);
     
 }
+#pragma endregion
 
 int main(){
     srand(time(NULL));
-
+    
     printf("Benvinguda!\n");
     menu();
 
