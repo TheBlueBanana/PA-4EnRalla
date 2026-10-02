@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <time.h>
-// #include<conio.h>
+#include<conio.h>
 
 // distingir sistemes operatius
 // https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
@@ -218,6 +218,7 @@ int jugadaGuanyadora(char** tauler, int col) {
 }
 
 #pragma region Nodes i tal
+int comptador = 0; // treure!!!!!!!!!!!!!
 void tirada(char** tauler, int numFill) {
 	//1.Transformar el numFill a columna de la matriu.
     int col = numFill;
@@ -240,7 +241,6 @@ int calcularNumFills(char** tauler) {
     return N;
 }
 
-int comptador = 0;
 Node* creaNode(Node* pare, int numFill, int nivell){
     Node* p = malloc(sizeof(Node));
     p->valor = comptador++;
@@ -251,6 +251,7 @@ Node* creaNode(Node* pare, int numFill, int nivell){
         p->fills = malloc(p->n_fills * sizeof(Node*));
     } else {
         p->n_fills = 0;
+        p->fills=NULL;
     }
     return p;
 }
@@ -279,8 +280,11 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 }
 
 void recorreArbre(Node* arrel) {
-    for (int i = 0; i<arrel->n_fills; i++) {
-        printf("%f", arrel->fills[i]->valor);
+    for(int i=0;i<arrel->n_fills;i++) {
+        printf("%.0f\n",arrel->fills[i]->valor);
+        for(int j=0;j<arrel->fills[i]->n_fills;j++) {
+            printf("  %.0f\n",arrel->fills[i]->fills[j]->valor);
+        }
     }
 }
 
@@ -406,6 +410,17 @@ int main(){
 
     printf("Benvinguda!\n");
     menu();
+
+    // Node arrel;
+	// arrel.valor=0;  //valor posat pel recorreArbre
+	// arrel.n_fills=N;
+    // arrel.tauler = creaTauler();
+    // buidaTauler(arrel.tauler);
+	// arrel.fills=malloc(N*sizeof(Node *));
+    // printf("Hi\n");
+	// creaArbre(&arrel);
+    // recorreArbreRecursiu(&arrel,0);
+    return 0;
 
     // Node arrel;
     // arrel.n_fills = N;
