@@ -1,4 +1,4 @@
-// V - 9/10/26
+// V - 13/10/26
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -29,6 +29,11 @@
 
 #define M 6
 #define N 8
+#define NIVELL_MAX 4
+
+#define PLAYER_CHAR 'x'
+#define MAQUINA_CHAR 'o'
+#define EMPTY_CHAR '-'
 
 // this is a test
 
@@ -45,6 +50,8 @@ void copiarTauler(char original[M][N], char copia[M][N]);
 
 int jugadaGuanyadora(char tauler[M][N], int col);
 
+int numFill_to_col(char tauler[M][N], int numFill);
+
 #pragma region Utilities
 /*  MATH */
 int min(int a, int b) {
@@ -54,10 +61,7 @@ int max(int a, int b) {
     return (a>b)? a : b;
 }
 
-// https://www.geeksforgeeks.org/c/clear-console-c-language/
-void clearConsole(){
-    printf("\e[1;1H\e[2J");
-}
+
 #pragma endregion
 
 #pragma region Gestió de Tauler
@@ -66,8 +70,8 @@ void printTauler(char tauler[M][N]){
     for (int i = M-1; i>=0; i--) {
         printf("%d ", i+1);
         for (int j = 0; j<N; j++) {
-            if (tauler[i][j] == 'x') printf(ANSI_COLOR_BLUE);
-            else if (tauler[i][j] == 'o') printf(ANSI_COLOR_RED);
+            if (tauler[i][j] == PLAYER_CHAR) printf(ANSI_COLOR_BLUE);
+            else if (tauler[i][j] == MAQUINA_CHAR) printf(ANSI_COLOR_RED);
 
             printf("%c " ANSI_COLOR_RESET, tauler[i][j]);
         }
@@ -90,7 +94,7 @@ void copiarTauler(char original[M][N], char copia[M][N]){
 void buidaTauler(char tauler[M][N]) {
     for (int i = 0; i<M; i++) {
         for (int j = 0; j<N; j++) {
-            tauler[i][j] = '-';
+            tauler[i][j] = EMPTY_CHAR;
         }
     }
 }
@@ -104,7 +108,7 @@ int getTopRow(char tauler[M][N], int col){
     int fila = 0;
     for (; fila < M; fila++)
     {
-        if (tauler[fila][col] == '-'){
+        if (tauler[fila][col] == EMPTY_CHAR){
             break;
         }
     }
@@ -120,7 +124,7 @@ int tiradaJugador(char tauler[M][N], int col, char player) {
 
     // for (int i = 0; i < M; i++)
     // {
-    //     if (tauler[i][col] == '-'){
+    //     if (tauler[i][col] == EMPTY_CHAR){
     //         tauler[i][col] = player;
     //         return 1;
     //     }
@@ -147,7 +151,7 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
     char player = 'e';
     for (; fila >= 0; fila--)
     {
-        if (tauler[fila][col] != '-'){
+        if (tauler[fila][col] != EMPTY_CHAR){
             player = tauler[fila][col];
             break;
         }
@@ -210,26 +214,35 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
 #pragma region Nodes i tal
 void tiradaMaq(char tauler[M][N], int numFill) {
 	//1.Transformar el numFill a columna de la matriu.
+    int col = numFill_to_col(tauler, numFill);
+    
+	//2.Calcula la fila on cau per gravetat
+    tauler[getTopRow(tauler, col)][col] = MAQUINA_CHAR;
+    
+	//3.Posar la fitxa a la fila/columna calculada
+}
+
+int numFill_to_col(char tauler[M][N], int numFill){
     int col = numFill;
-    for (int i = 0; i<N; i++) {
-        if (tauler[M-1][i] != '-'){
+    for (int i = 0; i<=col && i<N; i++) {
+        if (tauler[M-1][i] != EMPTY_CHAR){
             col++;
         }
     }
-	//2.Calcula la fila on cau per gravetat
-    for (int i = 0; i < M; i++)
-    {
-        if (tauler[i][col] == '-'){
-            tauler[i][col] = 'x';
-        }
+    if (col >= N) {
+        printf("ERROR: Columna Out Of Range a numFill_to_col");
+        return -1;
+    } else if (tauler[M-1][col] != EMPTY_CHAR) {
+        printf("ERROR: Columna Plena a numFill_to_col");
+        return -1;
     }
-	//3.Posar la fitxa a la fila/columna calculada
+    return col;
 }
 
 int calcularNumFills(char tauler[M][N]) {
     int possibles = 0;
     for (int i = 0; i<N; i++) {
-        if (getTopRow(tauler, i) < M) possibles++;
+        if (tauler[M-1][i] == EMPTY_CHAR) possibles++;
     }
     return possibles;
 }
@@ -239,7 +252,8 @@ Node* creaNode(Node* pare, int numFill, int nivell){
 
     copiarTauler(pare->tauler, p->tauler);
     tiradaMaq(p->tauler, numFill);
-    if (nivell < 2) {
+    
+    if (nivell < NIVELL_MAX) {
         p->n_fills = calcularNumFills(p->tauler); 
         p->fills = malloc(p->n_fills * sizeof(Node*));
     } else {
@@ -255,10 +269,34 @@ void creaFills(Node* pare, int nivell){
     }
 }
 
-void creaArbre(Node* arrel){
-    creaFills(arrel, 1);
+void creaArbre(Node* arrel, int nivell){
+    creaFills(arrel, nivell);
+    
+    if (nivell +1 >= NIVELL_MAX) {
+        return;
+    }
+
     for (int i = 0; i<arrel->n_fills; i++) {
-        creaFills(arrel->fills[i], 2);
+        creaArbre(arrel->fills[i], nivell+1);
+    }
+}
+
+void alliberaArbre(Node* arrel) {
+    for (int i = 0; i<arrel->n_fills; i++) {
+        alliberaArbre(arrel->fills[i]);
+    }
+
+    free(arrel->fills);
+    free(arrel);
+}
+
+void printValuesArbre(Node* arrel, int nivell) {
+    for (int i = 0; i<nivell; i++) {
+        printf(" ");
+    }
+    printf("%f - %d\n", arrel->valor, arrel->n_fills);
+    for (int i = 0; i<arrel->n_fills; i++) {
+        printValuesArbre(arrel->fills[i], nivell+1);
     }
 }
 
@@ -283,7 +321,12 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 */
     
 double heuristica(char tauler[M][N]) {
-    return 0;
+    double v = 0;
+    if (tauler[0][N-1] != EMPTY_CHAR) v++;
+    if (tauler[0][3] != PLAYER_CHAR) v++;
+    if (tauler[0][4] != PLAYER_CHAR) v--;
+    v = ((double)rand())/RAND_MAX;
+    return v;
 }
 
 void recorreArbreRecursiu(Node* p, int nivell) {
@@ -306,10 +349,22 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 
 
 int jugadaMaquina(char tauler[M][N]){
-    Node* arrel = malloc(sizeof(Node));
+    Node* arrel = malloc(sizeof(Node)); // AARREGLAR!!!!!!!!!!!
     copiarTauler(tauler, arrel->tauler);
-    creaArbre(arrel);
-    return 0;
+    creaArbre(arrel, 1);
+    recorreArbreRecursiu(arrel, 1);
+    printValuesArbre(arrel, 0);
+    
+    int tirada = 0;
+    double v = arrel-> valor;
+    for (int i=0; i<arrel->n_fills; i++) {
+        if (arrel->fills[i]->valor == v) {
+            tirada = numFill_to_col(arrel->tauler, i);
+        }
+    }
+
+    alliberaArbre(arrel);
+    return tirada;
 }
 
 #pragma endregion
@@ -320,9 +375,9 @@ void jugarPersones() {
     buidaTauler(tauler);
     printTauler(tauler);
     
-    char player = 'x';
+    char player = PLAYER_CHAR;
     for (int i = 0; i<N*M; i++) {
-        player = (i%2)? 'o' : 'x';
+        player = (i%2)? MAQUINA_CHAR : PLAYER_CHAR;
         printf("torn del jugador %c. La seva jugada:\n", player);
         int play = 0;
         scanf("%d", &play);
@@ -353,11 +408,12 @@ void jugarMaquina() {
     printTauler(tauler);
     
     
-    char player = 'x';
-    int torn = 0; // 0 màquina; 1 humà
+    char player = PLAYER_CHAR;
+    int torn = 1; // 0 màquina; 1 humà
     
-    printf("Vols començar? (0:no, 1:si)");
-    scanf("%d", &torn);
+    // Per començar
+    // printf("Vols començar? (0:no, 1:si)");
+    // scanf("%d", &torn);
     torn = torn % 2;
     
     for (int i = 0; i<N*M+100; i++) {
@@ -368,8 +424,8 @@ void jugarMaquina() {
             play--;
         } else {
 
-            jugadaMaquina(tauler);
-            play = rand() % N; // queda mirar que sigui vàlida
+            
+            play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
         }
         
         if (tiradaJugador(tauler, play, player) == 0) {
@@ -388,8 +444,14 @@ void jugarMaquina() {
         }
         printTauler(tauler);
         
-        player = (player == 'x')? 'o' : 'x';
-        torn = (torn == 0)? 1 : 0;
+        if (torn == 0) {
+            torn = 1;
+            player = PLAYER_CHAR;
+        } else {
+            torn = 0;
+            player = MAQUINA_CHAR;
+        }
+        
     }
     
     printf("Entra qualsevol número per tornar al menú\n");
@@ -401,7 +463,7 @@ void jugarMaquina() {
 }
 
 void menu() {
-    int option = 0;
+    int option = 0; 
     do
     {
         printf("Què vols fer?\n");
