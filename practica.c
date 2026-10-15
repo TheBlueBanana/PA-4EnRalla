@@ -226,11 +226,20 @@ int jugadaGuanyadora(char** tauler, int col) {
 
     return 0;
 }
+
+int validPlays(char** tauler) {
+    int valid = 0;
+    for (int i = 0; i<N; i++) {
+        if (tauler[M-1][i] == '-') valid++;
+    }
+    return valid;
+}
+
 #pragma endregion
 
 #pragma region Nodes i tal
 int comptador = 0; // treure!!!!!!!!!!!!!
-void tirada(char** tauler, int numFill) {
+int tirada(char** tauler, int numFill) {
 	//1.Transformar el numFill a columna de la matriu.
     int col = numFill;
     for (int i = 0; i<N; i++) {
@@ -246,6 +255,7 @@ void tirada(char** tauler, int numFill) {
         }
     }
 	//3.Posar la fitxa a la fila/columna calculada
+    return 0;
 }
 
 int calcularNumFills(char** tauler) {
@@ -343,7 +353,7 @@ void jugarMaquina() {
     char player = 'x';
     int torn = 0; // 0 màquina; 1 humà
     
-    printf("Vols començar? (0:no, 1:si)");
+    printf("Vols començar? (0:no, 1:si)\n");
     scanf("%d", &torn);
     torn = torn % 2;
     
@@ -354,14 +364,14 @@ void jugarMaquina() {
             scanf("%d", &play);
             play--;
         } else {
-
-            play = rand() % N; // queda mirar que sigui vàlida
+            play = rand() % validPlays(tauler); 
+            // tirada(tauler, play);
         }
         
         if (tiradaJugador(tauler, play, player) == 0) {
             printf("Error tirant! Torna a provar siusplau.\n");
-            printTauler(tauler);
-            continue;
+            // printTauler(tauler);
+            break;
         }
         
         if (jugadaGuanyadora(tauler, play) == 1) {
