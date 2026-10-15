@@ -212,12 +212,12 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
 #pragma endregion
 
 #pragma region Nodes i tal
-void tiradaMaq(char tauler[M][N], int numFill) {
+void tiradaMaq(char tauler[M][N], int numFill, int nivell) {
 	//1.Transformar el numFill a columna de la matriu.
     int col = numFill_to_col(tauler, numFill);
     
 	//2.Calcula la fila on cau per gravetat
-    tauler[getTopRow(tauler, col)][col] = MAQUINA_CHAR;
+    tauler[getTopRow(tauler, col)][col] = (nivell % 2 == 0)? MAQUINA_CHAR: PLAYER_CHAR;
     
 	//3.Posar la fitxa a la fila/columna calculada
 }
@@ -251,14 +251,14 @@ Node* creaNode(Node* pare, int numFill, int nivell){
     Node* p = malloc(sizeof(Node));
 
     copiarTauler(pare->tauler, p->tauler);
-    tiradaMaq(p->tauler, numFill);
+    tiradaMaq(p->tauler, numFill, nivell);
     
     if (nivell < NIVELL_MAX) {
-        p->n_fills = calcularNumFills(p->tauler); 
+        p->n_fills = calcularNumFills(p->tauler);
         p->fills = malloc(p->n_fills * sizeof(Node*));
     } else {
         p->n_fills = 0;
-        p->fills=NULL;
+        p->fills = NULL;
     }
     return p;
 }
@@ -272,7 +272,7 @@ void creaFills(Node* pare, int nivell){
 void creaArbre(Node* arrel, int nivell){
     creaFills(arrel, nivell);
     
-    if (nivell +1 >= NIVELL_MAX) {
+    if (nivell >= NIVELL_MAX) {
         return;
     }
 
@@ -323,9 +323,11 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 double heuristica(char tauler[M][N]) {
     double v = 0;
     if (tauler[0][N-1] != EMPTY_CHAR) v++;
+    if (tauler[1][N-1] != EMPTY_CHAR) v+=6;
     if (tauler[0][3] != PLAYER_CHAR) v++;
+    if (tauler[0][0] != PLAYER_CHAR) v++;
     if (tauler[0][4] != PLAYER_CHAR) v--;
-    v = ((double)rand())/RAND_MAX;
+    // v = ((double)rand())/RAND_MAX;
     return v;
 }
 
@@ -342,7 +344,7 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 
     double v = p->fills[0]->valor;
     for (int i =1; i<p->n_fills; i++) {
-        v = (nivell %2 ==1)? min(v, p->fills[i]->valor) : max(v, p->fills[i]->valor);
+        v = (nivell %2 == 1)? min(v, p->fills[i]->valor) : max(v, p->fills[i]->valor);
     }
     p->valor = v;
 }
@@ -351,9 +353,11 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 int jugadaMaquina(char tauler[M][N]){
     Node* arrel = malloc(sizeof(Node)); // AARREGLAR!!!!!!!!!!!
     copiarTauler(tauler, arrel->tauler);
+    arrel->n_fills = calcularNumFills(tauler); 
+    arrel->fills = malloc(arrel->n_fills * sizeof(Node*));
     creaArbre(arrel, 1);
     recorreArbreRecursiu(arrel, 1);
-    printValuesArbre(arrel, 0);
+    // printValuesArbre(arrel, 4);
     
     int tirada = 0;
     double v = arrel-> valor;
