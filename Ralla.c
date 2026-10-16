@@ -1,8 +1,10 @@
-// V - 13/10/26
+// V - 16/10/26 1
+// MIrar jugada guanyadora no juga la amaquina
 
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h> // to make random calls
+#include<float.h> // DBL_MAX
 // #include<ncurses.h> // to getch
 
 // #ifdef OSisWindows
@@ -99,7 +101,7 @@ void buidaTauler(char tauler[M][N]) {
     }
 }
 
-/* UNUSED
+/* 
     retorna la posició buida més baixa:
     0: cap peça posada
     M: fila plena
@@ -147,17 +149,20 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
     if (col < 0 || col>= N)
         return 0;
 
-    int fila = M-1;
-    char player = 'e';
-    for (; fila >= 0; fila--)
-    {
-        if (tauler[fila][col] != EMPTY_CHAR){
-            player = tauler[fila][col];
-            break;
-        }
-    }
+    int fila = getTopRow(tauler, col);
+    if (fila == 0) return -1;
+    char player = tauler[--fila][col];
+    // int fila = M-1;
+    // char player = 'e';
+    // for (; fila >= 0; fila--)
+    // {
+    //     if (tauler[fila][col] != EMPTY_CHAR){
+    //         player = tauler[fila][col];
+    //         break;
+    //     }
+    // }
 
-    if (player == 'e') return -1;
+    // if (player == 'e') return -1;
 
     // Horitzontal
     int seguides = 1;
@@ -230,10 +235,10 @@ int numFill_to_col(char tauler[M][N], int numFill){
         }
     }
     if (col >= N) {
-        printf("ERROR: Columna Out Of Range a numFill_to_col");
+        printf("ERROR: Columna Out Of Range a numFill_to_col\n");
         return -1;
     } else if (tauler[M-1][col] != EMPTY_CHAR) {
-        printf("ERROR: Columna Plena a numFill_to_col");
+        printf("ERROR: Columna Plena a numFill_to_col\n");
         return -1;
     }
     return col;
@@ -252,6 +257,12 @@ Node* creaNode(Node* pare, int numFill, int nivell){
 
     copiarTauler(pare->tauler, p->tauler);
     tiradaMaq(p->tauler, numFill, nivell);
+    if (jugadaGuanyadora(p->tauler, numFill_to_col(pare->tauler, numFill))) {
+        p->valor = (nivell % 2 == 0)? DBL_MAX : -DBL_MAX;
+        p->n_fills = 0;
+        p->fills = NULL;  
+    }
+    p->valor = 0;
     
     if (nivell < NIVELL_MAX) {
         p->n_fills = calcularNumFills(p->tauler);
@@ -290,13 +301,15 @@ void alliberaArbre(Node* arrel) {
     free(arrel);
 }
 
-void printValuesArbre(Node* arrel, int nivell) {
+void printValuesArbre(Node* arrel, int nivell, int limit) {
+    if (nivell > limit) return;
+
     for (int i = 0; i<nivell; i++) {
         printf(" ");
     }
     printf("%f - %d\n", arrel->valor, arrel->n_fills);
     for (int i = 0; i<arrel->n_fills; i++) {
-        printValuesArbre(arrel->fills[i], nivell+1);
+        printValuesArbre(arrel->fills[i], nivell+1, NIVELL_MAX);
     }
 }
 
@@ -322,19 +335,14 @@ void recorreArbreRecursiu(Node* p, int nivell) {
     
 double heuristica(char tauler[M][N]) {
     double v = 0;
-    if (tauler[0][N-1] != EMPTY_CHAR) v++;
-    if (tauler[1][N-1] != EMPTY_CHAR) v+=6;
-    if (tauler[0][3] != PLAYER_CHAR) v++;
-    if (tauler[0][0] != PLAYER_CHAR) v++;
-    if (tauler[0][4] != PLAYER_CHAR) v--;
-    // v = ((double)rand())/RAND_MAX;
+    v = ((double)rand())/RAND_MAX;
     return v;
 }
 
 void recorreArbreRecursiu(Node* p, int nivell) {
     
     if (p->n_fills == 0) {
-        p->valor = heuristica(p->tauler);
+        if (p->valor == 0 ) p->valor = heuristica(p->tauler);
         return;
     }
 
@@ -343,21 +351,23 @@ void recorreArbreRecursiu(Node* p, int nivell) {
     }
 
     double v = p->fills[0]->valor;
-    for (int i =1; i<p->n_fills; i++) {
-        v = (nivell %2 == 1)? min(v, p->fills[i]->valor) : max(v, p->fills[i]->valor);
+    for (int i = 1; i<p->n_fills; i++) {
+        v = (nivell %2 == 0)? max(v, p->fills[i]->valor) : min(v, p->fills[i]->valor);
     }
     p->valor = v;
 }
 
 
 int jugadaMaquina(char tauler[M][N]){
-    Node* arrel = malloc(sizeof(Node)); // AARREGLAR!!!!!!!!!!!
+    Node* arrel = malloc(sizeof(Node)); 
     copiarTauler(tauler, arrel->tauler);
     arrel->n_fills = calcularNumFills(tauler); 
     arrel->fills = malloc(arrel->n_fills * sizeof(Node*));
-    creaArbre(arrel, 1);
-    recorreArbreRecursiu(arrel, 1);
-    // printValuesArbre(arrel, 4);
+    arrel->valor = 0;
+
+    creaArbre(arrel, 0);
+    recorreArbreRecursiu(arrel, 0);
+    printValuesArbre(arrel, 0, 2);
     
     int tirada = 0;
     double v = arrel-> valor;
@@ -427,8 +437,6 @@ void jugarMaquina() {
             scanf("%d", &play);
             play--;
         } else {
-
-            
             play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
         }
         
