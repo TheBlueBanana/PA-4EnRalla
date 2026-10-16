@@ -1,8 +1,16 @@
 # PA-4EnRalla
 Primer treball de PA
 
+CPP:
+si posem un & a la declaració de la funció, aquesta es passará com a referència, no per valor
+void func(Complex& c1) { } // es passa per referència sense importar que l'usuari no canvii res!
 
-
+ORDRES DE PRECOMPILACIÓ:
+#ifndef __f__
+#define __f__
+...
+#endif
+ // Això és per definir estructures es creen etiquetes de forma que sabem si s'ha definit ja i no tenim duplicacions!
 
 OBSERVACIONS:
 
