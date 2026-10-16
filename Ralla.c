@@ -170,7 +170,7 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
 
     // Horitzontal
     int seguides = 1;
-    for (int i = 1; i<= N-col; i++) {
+    for (int i = 1; i< N-col; i++) {
         if (tauler[fila][col+i] != player) break;
         seguides++;
     }
@@ -192,7 +192,7 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
     
     /* Obliqua \ */
     seguides = 1;
-    for (int i = 1; i<= min(N-col, fila); i++) {
+    for (int i = 1; i<= min(N-col-1, fila); i++) {
         if (tauler[fila-i][col+i] != player) break;
         seguides++;
     }
@@ -205,7 +205,7 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
     
     // Obliqua /
     seguides = 1;
-    for (int i = 1; i<= min(N-col, M-fila-1); i++) {
+    for (int i = 1; i<= min(N-col-1, M-fila-1); i++) {
         if (tauler[fila+i][col+i] != player) break;
         seguides++;
     }
@@ -515,7 +515,8 @@ void menu() {
 #pragma endregion
 
 int main(){
-    srand(time(NULL));
+    // srand(time(NULL));
+    srand(123);
     
     printf("Benvinguda!\n");
     menu();
