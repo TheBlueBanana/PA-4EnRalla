@@ -1,4 +1,4 @@
-// V - 16/10/26 1 
+// V - 20/10/26 1 
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -155,18 +155,7 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
 
     int fila = getTopRow(tauler, col);
     if (fila == 0) return -1;
-    char player = tauler[--fila][col];
-    // int fila = M-1;
-    // char player = 'e';
-    // for (; fila >= 0; fila--)
-    // {
-    //     if (tauler[fila][col] != EMPTY_CHAR){
-    //         player = tauler[fila][col];
-    //         break;
-    //     }
-    // }
-
-    // if (player == 'e') return -1;
+    char player = tauler[--fila][col]; 
 
     // Horitzontal
     int seguides = 1;
@@ -262,7 +251,8 @@ Node* creaNode(Node* pare, int numFill, int nivell){
     tiradaMaq(p->tauler, numFill, nivell);
     
     if (jugadaGuanyadora(p->tauler, numFill_to_col(pare->tauler, numFill))) {
-        p->valor = (nivell % 2 == 0)? -DBL_MAX : DBL_MAX;
+        p->valor = (nivell % 2 == 0)? -10000: 10000; //-DBL_MAX : DBL_MAX;
+        if (p->valor > 0) p->valor *= 1/nivell; 
         p->n_fills = 0;
         p->fills = NULL; 
         return p; 
@@ -308,13 +298,13 @@ void alliberaArbre(Node* arrel) {
 }
 
 void printValuesArbre(Node* arrel, int nivell) {
-    if (nivell > 2) return;
+    if (nivell > 4) return;
 
     for (int i = 0; i<nivell; i++) {
         printf(" ");
     }
     printf("%f - %d - %d\n", arrel->valor, arrel->n_fills, nivell);
-    for (int i = 0; i<arrel->n_fills; i++) {
+    for (int i = 0; i<arrel->n_fills && i<4; i++) {
         printValuesArbre(arrel->fills[i], nivell+1);
     }
 }
@@ -373,7 +363,7 @@ int jugadaMaquina(char tauler[M][N]){
 
     creaArbre(arrel, 1);
     recorreArbreRecursiu(arrel, 0);
-    // printValuesArbre(arrel, 0);
+    printValuesArbre(arrel, 0);
     
     int tirada = 0;
     double v = arrel-> valor;
