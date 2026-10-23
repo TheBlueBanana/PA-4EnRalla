@@ -1,6 +1,12 @@
 # PA-4EnRalla
 Primer treball de PA
 
+EXAM:
+es pot portar tot
+~4 exercicis
+tot en pc
+
+
 CPP:
 si posem un & a la declaració de la funció, aquesta es passará com a referència, no per valor
 void func(Complex& c1) { } // es passa per referència sense importar que l'usuari no canvii res!
