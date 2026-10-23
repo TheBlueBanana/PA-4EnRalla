@@ -1,4 +1,4 @@
-// V - 20/10/26 1 
+// V - 23/10/26 1 
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -30,7 +30,7 @@
 
 #define M 6
 #define N 8
-#define NIVELL_MAX 4
+#define NIVELL_MAX 6
 
 #define PLAYER_CHAR 'x'
 #define MAQUINA_CHAR 'o'
@@ -55,12 +55,6 @@ int numFill_to_col(char tauler[M][N], int numFill);
 
 #pragma region Utilities
 /*  MATH */
-// int min(int a, int b) {
-//     return (a<b)? a : b;
-// }
-// int max(int a, int b) {
-//     return (a>b)? a : b;
-// }
 double min(double a, double b) {
     return (a<b)? a : b;
 }
@@ -105,6 +99,19 @@ void buidaTauler(char tauler[M][N]) {
     }
 }
 
+void conjugaTauler(char tauler[M][N]) {
+    for (int i = 0; i<M; i++) {
+        for (int j = 0; j<N; j++) {
+            if (tauler[i][j] == PLAYER_CHAR) {
+                tauler[i][j] = MAQUINA_CHAR;
+            } else if (tauler[i][j] == MAQUINA_CHAR) {
+                tauler[i][j] = PLAYER_CHAR;
+            }
+            
+        }
+    }
+}
+
 /* 
     retorna la posició buida més baixa:
     0: cap peça posada
@@ -128,13 +135,6 @@ int tiradaJugador(char tauler[M][N], int col, char player) {
     if (col < 0 || col>= N)
         return 0;
 
-    // for (int i = 0; i < M; i++)
-    // {
-    //     if (tauler[i][col] == EMPTY_CHAR){
-    //         tauler[i][col] = player;
-    //         return 1;
-    //     }
-    // }
     int row = getTopRow(tauler, col);
     if(row < M) {
         tauler[row][col] = player;
@@ -363,7 +363,7 @@ int jugadaMaquina(char tauler[M][N]){
 
     creaArbre(arrel, 1);
     recorreArbreRecursiu(arrel, 0);
-    printValuesArbre(arrel, 0);
+    // printValuesArbre(arrel, 0);
     
     int tirada = 0;
     double v = arrel-> valor;
@@ -470,6 +470,71 @@ void jugarMaquina() {
     // alliberaTauler(tauler);
 }
 
+void jugaMaquinaSola() {
+    char tauler[M][N]; // = creaTauler();
+    buidaTauler(tauler);
+    printTauler(tauler);
+    
+    
+    char player = PLAYER_CHAR;
+    int torn = 1; // 0 màquina; 1 humà
+    
+    // Per començar
+    // printf("Vols començar? (0:no, 1:si)");
+    // scanf("%d", &torn);
+    torn = torn % 2;
+    
+    for (int i = 0; i<N*M+100; i++) {
+        int play = 0;
+        if (torn == 1) {
+            char tConj[M][N];
+            copiarTauler(tauler, tConj);
+            conjugaTauler(tConj);
+            play = jugadaMaquina(tConj);
+        } else {
+            play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
+        }
+        
+        if (tiradaJugador(tauler, play, player) == 0) {
+            printf("Error tirant! Torna a provar siusplau.\n");
+            printTauler(tauler);
+            continue;
+        }
+        
+        if (jugadaGuanyadora(tauler, play) == 1) {
+            printTauler(tauler);
+            printf("guanya %c!\n", player);
+            break;
+        } else if (i>=N*M) { // ACABAR
+            printf("Empat!\n");
+            break;
+        }
+        printTauler(tauler);
+        
+        if (torn == 0) {
+            torn = 1;
+            player = PLAYER_CHAR;
+        } else {
+            torn = 0;
+            player = MAQUINA_CHAR;
+        }
+        
+
+
+        printf("Entra qualsevol número per continuar\n");
+        
+        int a; // CANVIAR!!
+        scanf("%d", &a);
+    }
+    
+    printf("Entra qualsevol número per tornar al menú\n");
+    
+    int a; // CANVIAR!!
+    scanf("%d", &a);
+    
+    // alliberaTauler(tauler);
+}
+
 void menu() {
     int option = 0; 
     do
@@ -477,7 +542,8 @@ void menu() {
         printf("Què vols fer?\n");
         printf("1. Jugar sol\n");
         printf("2. Jugar contra la màquina\n");
-        printf("3. Sortir\n");
+        printf("3. Que jugui ella sola\n");
+        printf("4. Sortir\n");
         scanf("%d", &option);
         
         switch (option)
@@ -489,9 +555,11 @@ void menu() {
             jugarMaquina();
             break;
             
-            case 0:
-            case -1:
             case 3:
+            jugaMaquinaSola();
+            break;
+
+            case -1:
             case 4:
             case 5:
             default:
