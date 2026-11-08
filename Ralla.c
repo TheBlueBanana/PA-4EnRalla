@@ -6,15 +6,7 @@
 #include<float.h> // DBL_MAX
 // #include<ncurses.h> // to getch
 
-// #ifdef OSisWindows
-//     #include<conio.h>
-//     void 
-// #else
 
-// #endif
-
-// distingir sistemes operatius
-// https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
 
 
 // ANSI color scape sequences
@@ -28,15 +20,33 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
-#define M 6
+#define M 8
 #define N 8
-#define NIVELL_MAX 4
+#define NIVELL_MAX 6
 
 #define PLAYER_CHAR 'x'
 #define MAQUINA_CHAR 'o'
 #define EMPTY_CHAR '-'
 
-// this is a test
+// distingir sistemes operatius
+// https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
+#ifdef OSisWindows
+    
+    void pause(){
+    
+#endif
+#ifdef WIN32
+    // #include <conio.h>
+    void pause() {
+        getchar();
+    }
+#elif defined(__LINUX__)
+    void pause(){
+        int a; // CANVIAR!!
+        scanf("%d", &a);
+    }
+// #include <whatever the curses header is>
+#endif
 
 typedef struct node {
     char tauler[M][N];
@@ -163,6 +173,7 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
     if (maxSeguides(tauler, fila, col) == 4) return 1;
     return 0;
 }
+
 /*
     1-4: nombre màxim de peçes seguides
     5: 3 seguides i extensible!
@@ -171,96 +182,95 @@ int maxSeguides(char tauler[M][N], int fila, int col) {
 
     char player = tauler[fila][col];
 
-    int maxSeguides = 1;
-    int extensible = 0;
+    int maxSeg = 1;
+    // int extensible = 0;
     // Horitzontal
     int seguides = 1;
     for (int i = 1; i< N-col; i++) {
         if (tauler[fila][col+i] != player) {
-            if (tauler[fila][col+i] == EMPTY_CHAR) extensible = 1;
+            // if (tauler[fila][col+i] == EMPTY_CHAR) extensible = 1;
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= col; i++) {
         if (tauler[fila][col-i] != player) {
-            if (tauler[fila][col-i] == EMPTY_CHAR) extensible = 1;
+            // if (tauler[fila][col-i] == EMPTY_CHAR) extensible = 1;
             break;
         }
         seguides++;
     }
 
     if (seguides >= 4) return 4;
-    if (seguides == 3 && extensible) return 5;
-    extensible = 0;
-    maxSeguides = max(seguides, maxSeguides);
+    // if (seguides == 3 && extensible) return 5;
+    // extensible = 0;
+    maxSeg = max(seguides, maxSeg);
 
     // Vertical
     seguides = 1;
     for (int i = 1; i <= fila; i++) {
         if (tauler[fila-i][col] != player) {
-            if (tauler[fila-i][col] == EMPTY_CHAR) extensible = 1;
+            // if (tauler[fila-i][col] == EMPTY_CHAR) extensible = 1;
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= M-fila-1; i++) {
         if (tauler[fila+i][col] != player) {
-            if (tauler[fila+i][col] == EMPTY_CHAR) extensible = 1;        
+            // if (tauler[fila+i][col] == EMPTY_CHAR) extensible = 1;        
             break;
         }
         seguides++;
     }
 
     if (seguides >= 4) return 4;
-    if (seguides == 3 && extensible) return 5;
-    extensible = 0;
-    maxSeguides = max(seguides, maxSeguides);
+    // if (seguides == 3 && extensible) return 5;
+    // extensible = 0;
+    maxSeg = max(seguides, maxSeg);
 
     
     /* Obliqua \ */
     seguides = 1;
     for (int i = 1; i<= min(N-col-1, fila); i++) {
         if (tauler[fila-i][col+i] != player) {
-            if (tauler[fila-i][col+i] == EMPTY_CHAR) extensible = 1;    
+            // if (tauler[fila-i][col+i] == EMPTY_CHAR) extensible = 1;    
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= min(col, M-fila-1); i++) {
         if (tauler[fila+i][col-i] != player) {
-            if (tauler[fila+i][col-i] == EMPTY_CHAR) extensible = 1;    
+            // if (tauler[fila+i][col-i] == EMPTY_CHAR) extensible = 1;    
             break;
         }
         seguides++;
     }
 
     if (seguides >= 4) return 4;
-    if (seguides == 3 && extensible) return 5;
-    extensible = 0;
-    maxSeguides = max(seguides, maxSeguides);
+    // if (seguides == 3 && extensible) return 5;
+    // extensible = 0;
+    maxSeg = max(seguides, maxSeg);
 
     // Obliqua /
     seguides = 1;
     for (int i = 1; i<= min(N-col-1, M-fila-1); i++) {
         if (tauler[fila+i][col+i] != player) {
-            if (tauler[fila+i][col+i] == EMPTY_CHAR) extensible = 1;    
+            // if (tauler[fila+i][col+i] == EMPTY_CHAR) extensible = 1;    
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= min(col, fila); i++) {
         if (tauler[fila-i][col-i] != player) {
-            if (tauler[fila-i][col-i] == EMPTY_CHAR) extensible = 1;    
+            // if (tauler[fila-i][col-i] == EMPTY_CHAR) extensible = 1;    
             break;
         }
         seguides++;
     }
 
     if (seguides >= 4) return 4;
-    if (seguides == 3 && extensible) return 5;
-    return  max(seguides, maxSeguides);
-
+    // if (seguides == 3 && extensible) return 5;
+    return  max(seguides, maxSeg);
 }
 #pragma endregion
 
@@ -308,12 +318,12 @@ Node* creaNode(Node* pare, int numFill, int nivell){
     int mult = (nivell % 2 == 0)? -1: 1;
     
     if (jugadaGuanyadora(p->tauler, numFill_to_col(pare->tauler, numFill))) {
-        p->valor = mult*1000000; //-DBL_MAX : DBL_MAX;
-        if (mult > 0) p->valor *= 1/(nivell+1); 
+        p->valor = mult*10000000; // DBL_MAX;
+        if (mult > 0) p->valor *= (double) 1/(nivell+1); 
         p->n_fills = 0;
         p->fills = NULL; 
         return p;
-    }
+    } // SI LA SEGÜENT TIRADA AQUI GUANYA ÉS QUE ENS PODEN TAPAR
 
     p->valor = 0;
     
@@ -327,7 +337,7 @@ Node* creaNode(Node* pare, int numFill, int nivell){
             char tConj[M][N];
             copiarTauler(p->tauler, tConj);
             conjugaTauler(tConj);
-            p->valor = heuristica(tConj);
+            p->valor = mult*heuristica(tConj);
         } else p->valor = heuristica(p->tauler);
     }
     return p;
@@ -398,23 +408,25 @@ double heuristica(char tauler[M][N]) {
     // fem avg
 
     // IDEA: Iterar només sobre els buits i veure si podem extendre allà!!!
-    double v = 0;
-
-    // for (int i =0; i<M; i++) {
-    //     for (int j = 0; j<N; j++) {
-    //         if (tauler[i][j]==EMPTY_CHAR) continue;
-
-    //         if (maxSeguides(tauler, i, j) == 5) {
-    //             v+= (tauler[i][j] == PLAYER_CHAR)? -10 : 10;
-    //         }
-    //     }
-    // }
-
+    double v = 0; 
     char tAux[M][N];
     copiarTauler(tauler, tAux);
+    int altures[N+2];
+    for (int i = 1; i<=N; i++) {
+        altures[i] = getTopRow(tauler, i);
+    }
+    altures[0] = altures[1];
+    altures[N+1] = altures[N];
+    // int maxHeight = 0;
+    // for (int i = 0; i<N; i++) {
+    //     maxHeight = max(getTopRow(tauler, i), maxHeight);
+    // }
+
     for (int i =0; i<M; i++) {
         for (int j = 0; j<N; j++) {
             if (tauler[i][j] != EMPTY_CHAR) continue;
+            // if (j > maxHeight) continue;
+            if(j> max(altures[j], max(altures[j+1], altures[j+2]))) continue;
 
             tAux[i][j] = PLAYER_CHAR;
             if (maxSeguides(tAux, i, j) == 4) v += -10;
@@ -429,7 +441,7 @@ double heuristica(char tauler[M][N]) {
     return v + ((double)rand())/RAND_MAX;
 }
 
-void recorreArbreRecursiu(Node* p, int nivell) {
+void minMax(Node* p, int nivell) {
     
     if (p->n_fills == 0) {
         // if (p->valor == 0.0) p->valor = heuristica(p->tauler);
@@ -437,7 +449,7 @@ void recorreArbreRecursiu(Node* p, int nivell) {
     }
 
     for (int i = 0; i<p->n_fills; i++) {
-        recorreArbreRecursiu(p->fills[i], nivell+1);
+        minMax(p->fills[i], nivell+1);
     }
 
     double v = p->fills[0]->valor;
@@ -449,15 +461,16 @@ void recorreArbreRecursiu(Node* p, int nivell) {
 
 
 int jugadaMaquina(char tauler[M][N]){
+    // clock_t start = clock();
     Node* arrel = malloc(sizeof(Node)); 
     copiarTauler(tauler, arrel->tauler);
     arrel->n_fills = calcularNumFills(tauler); 
     arrel->fills = malloc(arrel->n_fills * sizeof(Node*));
     arrel->valor = 0;
-
+    
     creaArbre(arrel, 1);
-    recorreArbreRecursiu(arrel, 0);
-    printValuesArbre(arrel, 0);
+    minMax(arrel, 0);
+    // printValuesArbre(arrel, 0);
     
     int tirada = 0;
     double v = arrel-> valor;
@@ -466,6 +479,10 @@ int jugadaMaquina(char tauler[M][N]){
             tirada = numFill_to_col(arrel->tauler, i);
         }
     }
+    
+    // clock_t end = clock();
+    // float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    // printf("La tirada ha durat %f\n", (float)(clock()-start)/CLOCKS_PER_SEC);
 
     alliberaArbre(arrel);
     return tirada;
@@ -499,14 +516,14 @@ void jugarPersones() {
     
     printf("Entra qualsevol número per tornar al menú\n");
     
-    int a; // CANVIAR!!
-    scanf("%d", &a);
+    pause();
     // getch();
     
     // alliberaTauler(tauler);
 }
 
 void jugarMaquina() {
+
     char tauler[M][N]; // = creaTauler();
     buidaTauler(tauler);
     printTauler(tauler);
@@ -520,7 +537,7 @@ void jugarMaquina() {
     // scanf("%d", &torn);
     torn = torn % 2;
     
-    for (int i = 0; i<N*M+100; i++) {
+    for (int i = 0; i<N*M; i++) {
         int play = 0;
         if (torn == 1) {
             printf("torn del jugador %c. La seva jugada:\n", player);
@@ -532,6 +549,7 @@ void jugarMaquina() {
         
         if (tiradaJugador(tauler, play, player) == 0) {
             printf("Error tirant! Torna a provar siusplau.\n");
+            i--;
             printTauler(tauler);
             continue;
         }
@@ -540,7 +558,7 @@ void jugarMaquina() {
             printTauler(tauler);
             printf("guanya %c!\n", player);
             break;
-        } else if (i>=N*M) { // ACABAR
+        } else if (i==N*M) { // ACABAR
             printf("Empat!\n");
             break;
         }
@@ -558,8 +576,7 @@ void jugarMaquina() {
     
     printf("Entra qualsevol número per tornar al menú\n");
     
-    int a; // CANVIAR!!
-    scanf("%d", &a);
+    pause();
     
     // alliberaTauler(tauler);
 }
@@ -614,17 +631,16 @@ void jugaMaquinaSola() {
         }
         
 
-
         printf("Entra qualsevol número per continuar\n");
         
-        int a; // CANVIAR!!
-        scanf("%d", &a);
+        pause();
     }
     
     printf("Entra qualsevol número per tornar al menú\n");
     
-    int a; // CANVIAR!!
-    scanf("%d", &a);
+    pause();
+    // int a; // CANVIAR!!
+    // scanf("%d", &a);
     
     // alliberaTauler(tauler);
 }
@@ -681,7 +697,7 @@ int main(){
 	// arrel.fills=malloc(N*sizeof(Node *));
     // printf("Hi\n");
 	// creaArbre(&arrel);
-    // recorreArbreRecursiu(&arrel,0);
+    // minMax(&arrel,0);
     return 0;
 
     // Node arrel;
