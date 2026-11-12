@@ -1,12 +1,10 @@
-// V - 23/10/26 2
+// V - 12/11/26 
 
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h> // to make random calls
 #include<float.h> // DBL_MAX
 // #include<ncurses.h> // to getch
-
-
 
 
 // ANSI color scape sequences
@@ -30,24 +28,23 @@
 
 // distingir sistemes operatius
 // https://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
-#ifdef OSisWindows
-    
-    void pause(){
-    
-#endif
-#ifdef WIN32
+void pause(){
+    #ifdef WIN32
     // #include <conio.h>
-    void pause() {
+
         getchar();
-    }
-#elif defined(__LINUX__)
-    void pause(){
+    
+    #elif defined(__linux__)
         int a; // CANVIAR!!
         scanf("%d", &a);
-    }
-// #include <whatever the curses header is>
-#endif
-
+        // #include <whatever the curses header is>
+    #else
+        int a; // CANVIAR!!
+        scanf("%d", &a);
+        // #include <whatever the curses header is>
+    #endif
+}
+        
 typedef struct node {
     char tauler[M][N];
     struct node** fills; // vector d'apuntadors als fills del node
@@ -491,39 +488,14 @@ int jugadaMaquina(char tauler[M][N]){
 #pragma endregion
 
 #pragma region Loops de Joc
-void jugarPersones() {
-    char tauler[M][N]; // = creaTauler();
-    buidaTauler(tauler);
-    printTauler(tauler);
-    
-    char player = PLAYER_CHAR;
-    for (int i = 0; i<N*M; i++) {
-        player = (i%2)? MAQUINA_CHAR : PLAYER_CHAR;
-        printf("torn del jugador %c. La seva jugada:\n", player);
-        int play = 0;
-        scanf("%d", &play);
-        play--;
-        if (tiradaJugador(tauler, play, player) == 0) 
-        printf("Error tirant!\n");
-        
-        if (jugadaGuanyadora(tauler, play) == 1) {
-            printTauler(tauler);
-            printf("guanya %c!\n", player);
-            break;
-        }
-        printTauler(tauler);
-    }
-    
-    printf("Entra qualsevol número per tornar al menú\n");
-    
-    pause();
-    // getch();
-    
-    // alliberaTauler(tauler);
-}
 
-void jugarMaquina() {
-
+/*
+    Mode:   0 - 2 jugadors
+            1 - 1 jugador vs maquina
+            2 - maquina sola
+*/
+void jugarUnificat(int mode) {
+    
     char tauler[M][N]; // = creaTauler();
     buidaTauler(tauler);
     printTauler(tauler);
@@ -531,20 +503,34 @@ void jugarMaquina() {
     
     char player = PLAYER_CHAR;
     int torn = 1; // 0 màquina; 1 humà
+    if (mode == 1) {
+        // Per començar
+        printf("Vols començar? (0:no, 1:si)\n");
+        scanf("%d", &torn);
+        torn = torn % 2;
+    }
     
-    // Per començar
-    // printf("Vols començar? (0:no, 1:si)");
-    // scanf("%d", &torn);
-    torn = torn % 2;
-    
-    for (int i = 0; i<N*M; i++) {
+    for (int i = 0; i<=N*M; i++) {
         int play = 0;
         if (torn == 1) {
-            printf("torn del jugador %c. La seva jugada:\n", player);
-            scanf("%d", &play);
-            play--;
+            if (mode <= 1) {
+                printf("torn del jugador %c. La seva jugada:\n", player);
+                scanf("%d", &play);
+                play--;
+            } else {
+                char tConj[M][N];
+                copiarTauler(tauler, tConj);
+                conjugaTauler(tConj);
+                play = jugadaMaquina(tConj);
+            }
         } else {
-            play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
+            if (mode == 0) {
+                printf("torn del jugador %c. La seva jugada:\n", player);
+                scanf("%d", &play);
+                play--;
+            } else {
+                play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
+            }
         }
         
         if (tiradaJugador(tauler, play, player) == 0) {
@@ -563,86 +549,22 @@ void jugarMaquina() {
             break;
         }
         printTauler(tauler);
-        
-        if (torn == 0) {
-            torn = 1;
-            player = PLAYER_CHAR;
-        } else {
-            torn = 0;
-            player = MAQUINA_CHAR;
-        }
-        
-    }
-    
-    printf("Entra qualsevol número per tornar al menú\n");
-    
-    pause();
-    
-    // alliberaTauler(tauler);
-}
-
-void jugaMaquinaSola() {
-    char tauler[M][N]; // = creaTauler();
-    buidaTauler(tauler);
-    printTauler(tauler);
-    
-    
-    char player = PLAYER_CHAR;
-    int torn = 1; // 0 màquina; 1 humà
-    
-    // Per començar
-    // printf("Vols començar? (0:no, 1:si)");
-    // scanf("%d", &torn);
-    torn = torn % 2;
-    
-    for (int i = 0; i<N*M+100; i++) {
-        int play = 0;
-        if (torn == 1) {
-            char tConj[M][N];
-            copiarTauler(tauler, tConj);
-            conjugaTauler(tConj);
-            play = jugadaMaquina(tConj);
-        } else {
-            play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
-        }
-        
-        if (tiradaJugador(tauler, play, player) == 0) {
-            printf("Error tirant! Torna a provar siusplau.\n");
-            printTauler(tauler);
-            continue;
-        }
-        
-        if (jugadaGuanyadora(tauler, play) == 1) {
-            printTauler(tauler);
-            printf("guanya %c!\n", player);
-            break;
-        } else if (i>=N*M) { // ACABAR
-            printf("Empat!\n");
-            break;
-        }
-        printTauler(tauler);
-        
-        if (torn == 0) {
-            torn = 1;
-            player = PLAYER_CHAR;
-        } else {
-            torn = 0;
-            player = MAQUINA_CHAR;
-        }
-        
 
         printf("Entra qualsevol número per continuar\n");
-        
         pause();
+        
+        if (torn == 0) {
+            torn = 1;
+            player = PLAYER_CHAR;
+        } else {
+            torn = 0;
+            player = MAQUINA_CHAR;
+        }
     }
     
     printf("Entra qualsevol número per tornar al menú\n");
     
     pause();
-    // int a; // CANVIAR!!
-    // scanf("%d", &a);
-    
-    // alliberaTauler(tauler);
 }
 
 void menu() {
@@ -659,19 +581,19 @@ void menu() {
         switch (option)
         {
             case 1:
-            jugarPersones();
+            jugarUnificat(0);
+            // jugarPersones();
             break;
             case 2:
-            jugarMaquina();
+            jugarUnificat(1);
+            // jugarMaquina();
             break;
             
             case 3:
-            jugaMaquinaSola();
+            jugarUnificat(2);
+            // jugaMaquinaSola();
             break;
 
-            case -1:
-            case 4:
-            case 5:
             default:
             option = 0;
             break;
@@ -689,31 +611,5 @@ int main(){
     printf("Benvinguda!\n");
     menu();
 
-    // Node arrel;
-	// arrel.valor=0;  //valor posat pel recorreArbre
-	// arrel.n_fills=N;
-    // arrel.tauler = creaTauler();
-    // buidaTauler(arrel.tauler);
-	// arrel.fills=malloc(N*sizeof(Node *));
-    // printf("Hi\n");
-	// creaArbre(&arrel);
-    // minMax(&arrel,0);
-    return 0;
-
-    // Node arrel;
-    // arrel.n_fills = N;
-    // arrel.fills = malloc(N*sizeof(Node*));
-    // creaArbre(&arrel);
-    // recorreArbre(&arrel);
-
     return 0;
 }
-
-
-// QUICKREF
-
-// per llegir números
-    // int n =0;
-    // scanf("%d", &n);
-    // printf("has dit %d\n", n);
-
