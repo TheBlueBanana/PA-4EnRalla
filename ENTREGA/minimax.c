@@ -1,3 +1,5 @@
+// Victor Ruiz Aguilera - 1707258
+
 #include"minimax.h"
 
 

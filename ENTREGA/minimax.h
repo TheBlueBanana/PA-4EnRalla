@@ -1,3 +1,5 @@
+// Victor Ruiz Aguilera - 1707258
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h> // to make random calls
