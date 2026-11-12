@@ -346,7 +346,7 @@ void jugarUnificat(int mode) {
                 scanf("%d", &play);
                 play--;
             } else {
-                play = jugadaMaquina(tauler);//rand() % N; // queda mirar que sigui vàlida
+                play = jugadaMaquina(tauler);
             }
         }
         

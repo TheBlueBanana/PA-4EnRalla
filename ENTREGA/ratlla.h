@@ -7,6 +7,14 @@
 #ifndef RATLLA_H
 #define RATLLA_H
 
+    #define M 8
+    #define N 8
+    #define NIVELL_MAX 6
+
+    #define PLAYER_CHAR 'x'
+    #define MAQUINA_CHAR 'o'
+    #define EMPTY_CHAR '-'
+
     // ANSI color scape sequences
     // https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
     #define ANSI_COLOR_RED     "\x1b[31m"
@@ -16,15 +24,6 @@
     #define ANSI_COLOR_MAGENTA "\x1b[35m"
     #define ANSI_COLOR_CYAN    "\x1b[36m"
     #define ANSI_COLOR_RESET   "\x1b[0m"
-
-    #define M 8
-    #define N 8
-    #define NIVELL_MAX 6
-
-    #define PLAYER_CHAR 'x'
-    #define MAQUINA_CHAR 'o'
-    #define EMPTY_CHAR '-'
-
 #endif
 
 // UTILITIES
