@@ -16,7 +16,7 @@ Node* creaNode(Node* pare, int numFill, int nivell){
         p->n_fills = 0;
         p->fills = NULL; 
         return p;
-    } // SI LA SEGÜENT TIRADA AQUI GUANYA ÉS QUE ENS PODEN TAPAR
+    }  
 
     p->valor = 0;
     
@@ -76,8 +76,7 @@ void printValuesArbre(Node* arrel, int nivell) {
 }
 void minMax(Node* p, int nivell) {
     
-    if (p->n_fills == 0) {
-        // if (p->valor == 0.0) p->valor = heuristica(p->tauler);
+    if (p->n_fills == 0) { 
         return;
     }
 

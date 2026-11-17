@@ -125,7 +125,6 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
     int fila = getTopRow(tauler, col);
     if (fila == 0) return -1;
     fila--;
-    // char player = tauler[--fila][col]; 
 
     if (maxSeguides(tauler, fila, col) == 4) return 1;
     return 0;
@@ -133,100 +132,84 @@ int jugadaGuanyadora(char tauler[M][N], int col) {
 
 /*
     1-4: nombre màxim de peçes seguides
-    5: 3 seguides i extensible!
+    si n'hi ha més retorna 4
 */
 int maxSeguides(char tauler[M][N], int fila, int col) {
 
     char player = tauler[fila][col];
 
-    int maxSeg = 1;
-    // int extensible = 0;
+    int maxSeg = 1; 
     // Horitzontal
     int seguides = 1;
     for (int i = 1; i< N-col; i++) {
-        if (tauler[fila][col+i] != player) {
-            // if (tauler[fila][col+i] == EMPTY_CHAR) extensible = 1;
+        if (tauler[fila][col+i] != player) { 
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= col; i++) {
-        if (tauler[fila][col-i] != player) {
-            // if (tauler[fila][col-i] == EMPTY_CHAR) extensible = 1;
+        if (tauler[fila][col-i] != player) { 
             break;
         }
         seguides++;
     }
 
-    if (seguides >= 4) return 4;
-    // if (seguides == 3 && extensible) return 5;
-    // extensible = 0;
+    if (seguides >= 4) return 4; 
     maxSeg = max(seguides, maxSeg);
 
     // Vertical
     seguides = 1;
     for (int i = 1; i <= fila; i++) {
-        if (tauler[fila-i][col] != player) {
-            // if (tauler[fila-i][col] == EMPTY_CHAR) extensible = 1;
+        if (tauler[fila-i][col] != player) { 
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= M-fila-1; i++) {
-        if (tauler[fila+i][col] != player) {
-            // if (tauler[fila+i][col] == EMPTY_CHAR) extensible = 1;        
+        if (tauler[fila+i][col] != player) {     
             break;
         }
         seguides++;
     }
 
-    if (seguides >= 4) return 4;
-    // if (seguides == 3 && extensible) return 5;
-    // extensible = 0;
+    if (seguides >= 4) return 4; 
     maxSeg = max(seguides, maxSeg);
 
     
     /* Obliqua \ */
     seguides = 1;
     for (int i = 1; i<= min(N-col-1, fila); i++) {
-        if (tauler[fila-i][col+i] != player) {
-            // if (tauler[fila-i][col+i] == EMPTY_CHAR) extensible = 1;    
+        if (tauler[fila-i][col+i] != player) { 
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= min(col, M-fila-1); i++) {
-        if (tauler[fila+i][col-i] != player) {
-            // if (tauler[fila+i][col-i] == EMPTY_CHAR) extensible = 1;    
+        if (tauler[fila+i][col-i] != player) { 
             break;
         }
         seguides++;
     }
 
-    if (seguides >= 4) return 4;
-    // if (seguides == 3 && extensible) return 5;
-    // extensible = 0;
+    if (seguides >= 4) return 4; 
     maxSeg = max(seguides, maxSeg);
 
     // Obliqua /
     seguides = 1;
     for (int i = 1; i<= min(N-col-1, M-fila-1); i++) {
-        if (tauler[fila+i][col+i] != player) {
-            // if (tauler[fila+i][col+i] == EMPTY_CHAR) extensible = 1;    
+        if (tauler[fila+i][col+i] != player) {    
             break;
         }
         seguides++;
     }
     for (int i = 1; i<= min(col, fila); i++) {
-        if (tauler[fila-i][col-i] != player) {
-            // if (tauler[fila-i][col-i] == EMPTY_CHAR) extensible = 1;    
+        if (tauler[fila-i][col-i] != player) { 
             break;
         }
         seguides++;
     }
 
-    if (seguides >= 4) return 4;
-    // if (seguides == 3 && extensible) return 5;
+    if (seguides >= 4) return 4; 
     return  max(seguides, maxSeg);
 }
 #pragma endregion
@@ -237,9 +220,8 @@ void tiradaMaq(char tauler[M][N], int numFill, int nivell) {
     int col = numFill_to_col(tauler, numFill);
     
 	//2.Calcula la fila on cau per gravetat
-    tauler[getTopRow(tauler, col)][col] = (nivell % 2 == 0)? PLAYER_CHAR: MAQUINA_CHAR;
-    
 	//3.Posar la fitxa a la fila/columna calculada
+    tauler[getTopRow(tauler, col)][col] = (nivell % 2 == 0)? PLAYER_CHAR: MAQUINA_CHAR;
 }
 
 int numFill_to_col(char tauler[M][N], int numFill){
@@ -266,10 +248,7 @@ int calcularNumFills(char tauler[M][N]) {
     }
     return possibles;
 }
-double heuristica(char tauler[M][N]) {
-    // calculem lo bo per jugador
-    // calculem lo bo per maquina
-    // fem avg
+double heuristica(char tauler[M][N]) { 
 
     // IDEA: Iterar només sobre els buits i veure si podem extendre allà!!!
     double v = 0; 
@@ -277,7 +256,7 @@ double heuristica(char tauler[M][N]) {
     copiarTauler(tauler, tAux);
     int altures[N+2];
     for (int i = 1; i<=N; i++) {
-        altures[i] = getTopRow(tauler, i);
+        altures[i] = getTopRow(tauler, i-1);
     }
     altures[0] = altures[1];
     altures[N+1] = altures[N];
@@ -293,10 +272,17 @@ double heuristica(char tauler[M][N]) {
             if(j> max(altures[j], max(altures[j+1], altures[j+2]))) continue;
 
             tAux[i][j] = PLAYER_CHAR;
-            if (maxSeguides(tAux, i, j) == 4) v += -10;
-
+            if (maxSeguides(tAux, i, j) == 4) {
+                v += -10;
+            }
+            
             tAux[i][j] = MAQUINA_CHAR;
-            if (maxSeguides(tAux, i, j) == 4) v += 10;
+            if (maxSeguides(tAux, i, j) == 4) {
+                // if (jugadaGuanyadora(tAux, j) == 1) {v -= 10;}
+                // else {
+                    v += 10;
+                // }
+            }
 
             tAux[i][j] = EMPTY_CHAR;
         }
@@ -314,7 +300,7 @@ double heuristica(char tauler[M][N]) {
 */
 void jugarUnificat(int mode) {
     
-    char tauler[M][N]; // = creaTauler();
+    char tauler[M][N];
     buidaTauler(tauler);
     printTauler(tauler);
     
@@ -322,7 +308,6 @@ void jugarUnificat(int mode) {
     char player = PLAYER_CHAR;
     int torn = 1; // 0 màquina; 1 humà
     if (mode == 1) {
-        // Per començar
         printf("Vols començar? (0:no, 1:si)\n");
         scanf("%d", &torn);
         torn = torn % 2;
@@ -364,7 +349,7 @@ void jugarUnificat(int mode) {
         if (jugadaGuanyadora(tauler, play) == 1) {
             printf("guanya %c!\n", player);
             break;
-        } else if (i>=N*M-1) { // ACABAR
+        } else if (i>=N*M-1) {  
             printf("Empat!\n");
             break;
         }
